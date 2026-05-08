@@ -1,8 +1,6 @@
-/*convierte decimales a binarios y biceversa*/ 
 #include <stdio.h>
-#include <math.h>
+#include "binarios.h"
 
-// Decimal a binario
 void decimal_a_binario(int n) {
     int binario[32];
     int i = 0;
@@ -20,40 +18,15 @@ void decimal_a_binario(int n) {
     printf("\n");
 }
 
-// Binario a decimal
 int binario_a_decimal(int binario) {
     int decimal = 0, i = 0;
 
     while(binario > 0) {
         int digito = binario % 10;
-        decimal += digito * pow(2, i);
+        decimal += digito * (i == 0 ? 1 : (i == 1 ? 2 : (i == 2 ? 4 : (i == 3 ? 8 : (i == 4 ? 16 : (i == 5 ? 32 : 64))))));
         binario /= 10;
         i++;
     }
 
     return decimal;
-}
-
-int main() {
-    int opcion;
-
-    printf("1. Decimal a Binario\n");
-    printf("2. Binario a Decimal\n");
-    printf("Seleccione: ");
-    scanf("%d", &opcion);
-
-    if(opcion == 1) {
-        int num;
-        printf("Ingrese numero decimal: ");
-        scanf("%d", &num);
-        decimal_a_binario(num);
-
-    } else if(opcion == 2) {
-        int bin;
-        printf("Ingrese numero binario: ");
-        scanf("%d", &bin);
-        printf("Decimal: %d\n", binario_a_decimal(bin));
-    }
-
-    return 0;
 }
