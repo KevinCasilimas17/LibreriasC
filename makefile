@@ -11,49 +11,39 @@ LIB_OBJS = $(LIB_SRCS:.c=.o)
 
 # Bibliotecas
 LIB_STATIC = $(LIBDIR)/libmatematicas.a
-LIB_DYNAMIC = $(LIBDIR)/libmatematicas.so
+LIB_DYNAMIC = $(LIBDIR)/libmatematicas.dll
 
 # Ejecutables
-EXAMPLES = $(EXAMPLEDIR)/demo_iteracion $(EXAMPLEDIR)/demo_newton
+EXAMPLES = $(EXAMPLEDIR)/demo_iteracion.exe $(EXAMPLEDIR)/demo_newton.exe
 
 # Crear directorio lib si no existe
-$(shell mkdir -p $(LIBDIR))
+if not exist $(LIBDIR) mkdir $(LIBDIR)
 
 all: $(LIB_STATIC) $(LIB_DYNAMIC) $(EXAMPLES)
 
 # Biblioteca estática
 $(LIB_STATIC): $(LIB_OBJS)
 	ar rcs $@ $^
-	@echo "✅ Biblioteca estática creada: $@"
+	@echo Biblioteca estatica creada: $@
 
-# Biblioteca dinámica
+# Biblioteca dinámica (Windows)
 $(LIB_DYNAMIC): $(LIB_OBJS)
-	$(CC) -shared -o $@ $^
-	@echo "✅ Biblioteca dinámica creada: $@"
+	gcc -shared -o $@ $^
+	@echo Biblioteca dinamica creada: $@
 
 # Compilar objetos
 $(SRCDIR)/%.o: $(SRCDIR)/%.c
-	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+	gcc $(CFLAGS) $(INCLUDES) -c $< -o $@
 
-# Enlazar ejemplos con biblioteca estática
-$(EXAMPLEDIR)/demo_iteracion: $(EXAMPLEDIR)/demo_iteracion.c $(LIB_STATIC)
-	$(CC) $(INCLUDES) -L$(LIBDIR) $< -lmatematicas -lm -o $@
+# Enlazar ejemplos
+$(EXAMPLEDIR)/demo_iteracion.exe: $(EXAMPLEDIR)/demo_iteracion.c $(LIB_STATIC)
+	gcc $(INCLUDES) -L$(LIBDIR) $< -lmatematicas -lm -o $@
 
-$(EXAMPLEDIR)/demo_newton: $(EXAMPLEDIR)/demo_newton.c $(LIB_STATIC)
-	$(CC) $(INCLUDES) -L$(LIBDIR) $< -lmatematicas -lm -o $@
-
-# Ejecutar con biblioteca dinámica
-run_dynamic:
-	LD_LIBRARY_PATH=$(LIBDIR) ./$(EXAMPLEDIR)/demo_iteracion
+$(EXAMPLEDIR)/demo_newton.exe: $(EXAMPLEDIR)/demo_newton.c $(LIB_STATIC)
+	gcc $(INCLUDES) -L$(LIBDIR) $< -lmatematicas -lm -o $@
 
 # Limpiar
 clean:
-	rm -f $(SRCDIR)/*.o $(LIBDIR)/*.a $(LIBDIR)/*.so $(EXAMPLES)
+	del /Q $(SRCDIR)\*.o $(LIBDIR)\*.a $(LIBDIR)\*.dll $(EXAMPLEDIR)\*.exe 2>nul
 
-# Instalar bibliotecas (opcional)
-install:
-	sudo cp $(LIBDIR)/*.a /usr/local/lib/
-	sudo cp $(LIBDIR)/*.so /usr/local/lib/
-	sudo cp include/*.h /usr/local/include/
-
-.PHONY: all clean run_dynamic install
+.PHONY: all clean
